@@ -1,27 +1,23 @@
 import numpy as np
 
 
-def func(t):
-    return 5*(t-3)**4 + 2*t - 12
+def step(v, direction, learning_rate):
+    return v - direction * learning_rate
 
 
-def calc_gradient(t):
-    return 20*(t-3)**3 + 2
+def is_points_close_enough(cur_x, next_x, tolerance):
+    return np.abs(next_x - cur_x) > tolerance
 
 
-def step(v, direction, step_size):
-    return v + direction*step_size
+def gradient_descent_single_variable(func_calc_gradient, func, start_x=0, tolerance=0.000001, learning_rate=0.01):
+    cur_x = start_x
 
+    is_not_converged = True
 
-def gradient_descent(func_calc_gradient, start_x = 0, tolerance=0.001, learning_rate = -0.001):
+    while is_not_converged:
+        cur_gradient = func_calc_gradient(cur_x)
+        next_x = step(cur_x, cur_gradient, learning_rate)
+        is_not_converged = is_points_close_enough(cur_x, next_x, tolerance)
+        cur_x = next_x
 
-    x = start_x
-
-    while True:
-        gd = func_calc_gradient(x) # compute the gradient at v
-        next_x = step(x, gd, learning_rate) # take a negative gradient step
-        if np.abs(next_x - x) < tolerance: # stop if we're converging
-            break
-        x = next_x
-
-    return x, func(x)
+    return cur_x, func(cur_x)
