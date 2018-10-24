@@ -45,8 +45,14 @@ def gradient_descent_multiple_variable(func_calc_gradient, func, start_x=(3, 5),
     return cur_x, func(cur_x), convergence_path
 
 
-def compute_cost_function(m, t0, t1, x, y):
-    return 1 / 2 / m * sum([(t0 + t1 * np.asarray([x[i]]) - y[i]) ** 2 for i in range(m)])
+def compute_cost_function(theta, x, y):
+    m = len(y)
+    xa = np.append(np.ones((1, m)), np.asmatrix(x), axis=0)
+    approximation_value = np.sum(np.array(theta) * np.transpose(np.array(xa)), axis=1)
+    dif = approximation_value - y
+    sum_of_squares = sum(dif ** 2)
+    return sum_of_squares / (2 * m)
+
 
 
 def batch_gradient_descent(data, start_theta=(1, 1)):
