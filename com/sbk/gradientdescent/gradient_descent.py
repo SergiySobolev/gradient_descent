@@ -85,15 +85,3 @@ def batch_gradient_descent(data, start_theta=(1, 1)):
 
     return t0, t1
 
-
-def calc_grad1(m, t0, t1, x, y):
-    cur_values = t0 + t1 * x
-    dif = cur_values - y
-    v = dif * x
-    return sum(v) / m
-
-
-def calc_grad0(m, t0, t1, x, y):
-    cur_values = t0 + t1 * x
-    dif = cur_values - y
-    return sum(dif) / m
