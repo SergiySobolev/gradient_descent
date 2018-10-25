@@ -48,11 +48,20 @@ def gradient_descent_multiple_variable(func_calc_gradient, func, start_x=(3, 5),
 def compute_cost_function(theta, x, y):
     m = len(y)
     xa = np.append(np.ones((1, m)), np.asmatrix(x), axis=0)
-    approximation_value = np.sum(np.array(theta) * np.transpose(np.array(xa)), axis=1)
-    dif = approximation_value - y
-    sum_of_squares = sum(dif ** 2)
-    return sum_of_squares / (2 * m)
+    approx_value = np.sum(np.array(theta) * np.transpose(np.array(xa)), axis=1)
+    dif = approx_value - y
+    return sum(dif ** 2) / (2 * m)
 
+
+def compute_gradient(theta, x, y):
+    m = len(y)
+
+    xa = np.append(np.ones((1, m)), np.asmatrix(x), axis=0)
+    approx_value = np.sum(np.array(theta) * np.transpose(np.array(xa)), axis=1)
+    dif = approx_value - y
+    grad = [sum(dif) / m]
+    grad.extend(np.sum(dif * x, axis=1) / m)
+    return grad
 
 
 def batch_gradient_descent(data, start_theta=(1, 1)):
@@ -60,17 +69,15 @@ def batch_gradient_descent(data, start_theta=(1, 1)):
     t1 = start_theta[1]
     x = data[:, 0]
     y = data[:, 1]
-    m = len(x)
     max_iter = 40
     iter_num = 0
     alpha = 0.001
 
     while iter_num < max_iter:
-        grad0 = calc_grad0(m, t0, t1, x, y)
-        grad1 = calc_grad1(m, t0, t1, x, y)
+        gradient = compute_gradient((t0, t1), [x], y)
 
-        temp0 = t0 - alpha * grad0
-        temp1 = t1 - alpha * grad1
+        temp0 = t0 - alpha * gradient[0]
+        temp1 = t1 - alpha * gradient[1]
 
         t0 = temp0
         t1 = temp1
