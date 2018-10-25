@@ -54,34 +54,47 @@ def compute_cost_function(theta, x, y):
 
 
 def compute_gradient(theta, x, y):
-    m = len(y)
-
-    xa = np.append(np.ones((1, m)), np.asmatrix(x), axis=0)
-    approx_value = np.sum(np.array(theta) * np.transpose(np.array(xa)), axis=1)
+    x_arr = np.asarray(x) if type(x) is list else x
+    m = x_arr.shape[0]
+    ones = np.ones((m, 1))
+    xa = np.hstack((ones, x))
+    approx_value = np.sum(theta * xa, axis=1)
     dif = approx_value - y
-    grad = [sum(dif) / m]
-    grad.extend(np.sum(dif * x, axis=1) / m)
+    grad0 = np.asarray([sum(dif) / m])
+    gradn = np.dot(np.asarray(dif), x) / m
+    grad = np.concatenate((grad0, gradn), axis=0)
     return grad
 
 
-def batch_gradient_descent(data, start_theta=(1, 1)):
-    t0 = start_theta[0]
-    t1 = start_theta[1]
-    x = data[:, 0]
-    y = data[:, 1]
-    max_iter = 40
+def propose_theta(data):
+    return np.ones(data.shape[1])
+
+
+def update_theta(theta, gradient, alpha):
+    return theta - alpha * gradient
+
+
+def batch_gradient_descent(data, start_theta=None, alpha=None, max_iter=None):
+    if start_theta is None:
+        start_theta = propose_theta(data)
+
+    if alpha is None:
+        alpha = 0.001
+
+    if max_iter is None:
+        max_iter = 40
+
+    f_n = data.shape[1] - 1
+    x = data[:, range(f_n)]
+    y = data[:, f_n]
     iter_num = 0
-    alpha = 0.001
+    cur_theta = start_theta
 
     while iter_num < max_iter:
-        gradient = compute_gradient((t0, t1), [x], y)
+        gradient = compute_gradient(cur_theta, x, y)
 
-        temp0 = t0 - alpha * gradient[0]
-        temp1 = t1 - alpha * gradient[1]
+        cur_theta = update_theta(cur_theta, gradient, alpha)
 
-        t0 = temp0
-        t1 = temp1
         iter_num += 1
 
-    return t0, t1
-
+    return cur_theta
