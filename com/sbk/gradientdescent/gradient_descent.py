@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 
 
@@ -26,7 +28,6 @@ def gradient_descent_single_variable(func_calc_gradient, func, start_x=0, tolera
         is_not_converged = is_points_not_close_enough(cur_x, next_x, tolerance)
         convergence_path.append(next_x)
         cur_x = next_x
-
     return cur_x, func(cur_x), convergence_path
 
 
@@ -46,9 +47,11 @@ def gradient_descent_multiple_variable(func_calc_gradient, func, start_x=(3, 5),
 
 
 def compute_cost_function(theta, x, y):
-    m = len(y)
-    xa = np.append(np.ones((1, m)), np.asmatrix(x), axis=0)
-    approx_value = np.sum(np.array(theta) * np.transpose(np.array(xa)), axis=1)
+    x_arr = np.asarray(x) if type(x) is list else x
+    m = x_arr.shape[0]
+    ones = np.ones((m, 1))
+    xa = np.hstack((ones, x))
+    approx_value = np.sum(theta * xa, axis=1)
     dif = approx_value - y
     return sum(dif ** 2) / (2 * m)
 
@@ -74,7 +77,10 @@ def update_theta(theta, gradient, alpha):
     return theta - alpha * gradient
 
 
-def batch_gradient_descent(data, start_theta=None, alpha=None, max_iter=None):
+def batch_gradient_descent(data, start_theta=None, alpha=None, max_iter=None, tolerance=None):
+    logging.basicConfig(level=logging.DEBUG)
+    log = logging.getLogger(__name__)
+
     if start_theta is None:
         start_theta = propose_theta(data)
 
@@ -84,17 +90,25 @@ def batch_gradient_descent(data, start_theta=None, alpha=None, max_iter=None):
     if max_iter is None:
         max_iter = 40
 
+    if tolerance is None:
+        tolerance = 0.0001
+
     f_n = data.shape[1] - 1
     x = data[:, range(f_n)]
     y = data[:, f_n]
     iter_num = 0
     cur_theta = start_theta
-
-    while iter_num < max_iter:
+    p_cost_func_v = compute_cost_function(cur_theta, x, y)
+    not_converged = True
+    while not_converged and iter_num < max_iter:
         gradient = compute_gradient(cur_theta, x, y)
 
         cur_theta = update_theta(cur_theta, gradient, alpha)
-
+        cur_cost_func_v = compute_cost_function(cur_theta, x, y)
+        not_converged = np.abs(cur_cost_func_v - p_cost_func_v) > tolerance
+        p_cost_func_v = cur_cost_func_v
         iter_num += 1
 
+    log.debug("Cost func value = %d", p_cost_func_v)
+    log.debug("Iteration num = %d", iter_num)
     return cur_theta
