@@ -1,5 +1,3 @@
-import logging
-
 import numpy as np
 
 
@@ -78,8 +76,6 @@ def update_theta(theta, gradient, alpha):
 
 
 def batch_gradient_descent(data, start_theta=None, alpha=None, max_iter=None, tolerance=None):
-    logging.basicConfig(level=logging.DEBUG)
-    log = logging.getLogger(__name__)
 
     if start_theta is None:
         start_theta = propose_theta(data)
@@ -109,6 +105,4 @@ def batch_gradient_descent(data, start_theta=None, alpha=None, max_iter=None, to
         p_cost_func_v = cur_cost_func_v
         iter_num += 1
 
-    log.debug("Cost func value = %d", p_cost_func_v)
-    log.debug("Iteration num = %d", iter_num)
     return cur_theta
